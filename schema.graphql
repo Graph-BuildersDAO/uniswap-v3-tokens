@@ -74,6 +74,10 @@ type Token @entity {
   tokenDayData: [TokenDayData!]! @derivedFrom(field: "token")
   tokenHourData: [TokenHourData!]! @derivedFrom(field: "token")
   tokenMinuteData: [TokenMinuteData!]! @derivedFrom(field: "token")
+
+  # Archive helpers
+  lastMinuteArchived: BigInt!
+  lastHourArchived: BigInt!
 }
 
 type _Schema_
@@ -205,6 +209,8 @@ type TokenHourData @entity {
   low: BigDecimal!
   # close price USD
   close: BigDecimal!
+  # archive helper id
+  archiveHelper: ArchiveHelper!
 }
 
 type TokenMinuteData @entity {
@@ -236,4 +242,15 @@ type TokenMinuteData @entity {
   low: BigDecimal!
   # close price USD
   close: BigDecimal!
+  # archive helper id
+  archiveHelper: ArchiveHelper!
+}
+
+type ArchiveHelper @entity(immutable: true) {
+  # unix timestamp for start of minute
+  id: ID!
+  #derived field to all hour records for this minute
+  tokenHourDatas: [TokenHourData!]! @derivedFrom(field: "archiveHelper")
+  #derived field to all minute records for this minute
+  tokenMinuteDatas: [TokenMinuteData!]! @derivedFrom(field: "archiveHelper")
 }

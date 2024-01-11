@@ -38,6 +38,8 @@ export function handlePoolCreated(event: PoolCreated): void {
     token0.symbol = fetchTokenSymbol(event.params.token0)
     token0.name = fetchTokenName(event.params.token0)
     token0.totalSupply = fetchTokenTotalSupply(event.params.token0)
+    token0.lastMinuteArchived = event.block.timestamp.minus(BigInt.fromI32(60))
+    token0.lastHourArchived = event.block.timestamp.minus(BigInt.fromI32(3600))
     let decimals = fetchTokenDecimals(event.params.token0)
 
     // bail if we couldn't figure out the decimals
@@ -66,6 +68,8 @@ export function handlePoolCreated(event: PoolCreated): void {
     token1.symbol = fetchTokenSymbol(event.params.token1)
     token1.name = fetchTokenName(event.params.token1)
     token1.totalSupply = fetchTokenTotalSupply(event.params.token1)
+    token1.lastMinuteArchived = event.block.timestamp.minus(BigInt.fromI32(60))
+    token1.lastHourArchived = event.block.timestamp.minus(BigInt.fromI32(3600))
     let decimals = fetchTokenDecimals(event.params.token1)
     // bail if we couldn't figure out the decimals
     if (!decimals) {
