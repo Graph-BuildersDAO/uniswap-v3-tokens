@@ -94,7 +94,7 @@ export function updateTokenHourData(token: Token, event: ethereum.Event): TokenH
   return tokenHourData as TokenHourData
 }
 
-export function updateTokenMinuteData(token: Token, event: ethereum.Event): TokenHourData {
+export function updateTokenMinuteData(token: Token, event: ethereum.Event): TokenMinuteData {
   let bundle = Bundle.load('1')!
   let timestamp = event.block.timestamp.toI32()
   let minuteIndex = timestamp / 60 // get unique hour within unix history
@@ -107,7 +107,7 @@ export function updateTokenMinuteData(token: Token, event: ethereum.Event): Toke
   let tokenPrice = token.derivedETH.times(bundle.ethPriceUSD)
 
   if (!tokenMinuteData) {
-    tokenMinuteData = new TokenHourData(tokenDayID)
+    tokenMinuteData = new TokenMinuteData(tokenDayID)
     tokenMinuteData.periodStartUnix = hourStartUnix
     tokenMinuteData.token = token.id
     tokenMinuteData.volume = ZERO_BD
@@ -134,5 +134,5 @@ export function updateTokenMinuteData(token: Token, event: ethereum.Event): Toke
   tokenMinuteData.totalValueLockedUSD = token.totalValueLockedUSD
   tokenMinuteData.save()
 
-  return tokenMinuteData as TokenHourData
+  return tokenMinuteData as TokenMinuteData
 }

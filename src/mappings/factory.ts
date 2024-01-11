@@ -10,12 +10,12 @@ import { getFactory } from '../utils/entityGetters'
 
 export function handlePoolCreated(event: PoolCreated): void {
   // Temp limitation for data testing
-   if (event.params.pool != Address.fromHexString('0x70c132a2ddeccf0d76cc9b64a749ffe375a79a21')
-   && event.params.pool != Address.fromHexString('0x6fe9e9de56356f7edbfcbb29fab7cd69471a4869')
-   && event.params.pool != Address.fromHexString('0x2c3c320d49019d4f9a92352e947c7e5acfe47d68')
-   && event.params.pool != Address.fromHexString('0x2dc06c0ae3bb0959459815f68e332e799aae813a')
-   && event.params.pool != Address.fromHexString('0x6bcb0ba386e9de0c29006e46b2f01f047ca1806e')
-   ) return
+  if (
+    event.params.pool != Address.fromHexString('0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8') &&
+    event.params.pool != Address.fromHexString('0x0e2c4be9f3408e5b1ff631576d946eb8c224b5ed') &&
+    event.params.pool != Address.fromHexString('0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640')
+  )
+    return
 
   // // temp fix
   // if (event.params.pool == Address.fromHexString('0x8fe8d9bb8eeba3ed688069c3d6b556c9ca258248')) {
