@@ -72,6 +72,8 @@ type Token @entity {
   whitelistPools: [Pool!]!
   # derived fields
   tokenDayData: [TokenDayData!]! @derivedFrom(field: "token")
+  tokenHourData: [TokenHourData!]! @derivedFrom(field: "token")
+  tokenMinuteData: [TokenMinuteData!]! @derivedFrom(field: "token")
 }
 
 type _Schema_
@@ -208,7 +210,7 @@ type TokenHourData @entity {
 type TokenMinuteData @entity {
   # token address concatendated with date
   id: ID!
-  # unix timestamp for start of hour
+  # unix timestamp for start of minute
   periodStartUnix: Int!
   # pointer to token
   token: Token!
