@@ -1,8 +1,17 @@
 import { ZERO_BD, ZERO_BI, ONE_BI } from './constants'
 /* eslint-disable prefer-const */
-import { Factory, Pool, Token, TokenDayData, TokenHourData, TokenMinuteData, Bundle } from '../../generated/schema'
+import {
+  Factory,
+  Pool,
+  Token,
+  TokenDayData,
+  TokenHourData,
+  TokenMinuteData,
+  Bundle,
+  ArchiveHelper
+} from '../../generated/schema'
 import { FACTORY_ADDRESS } from './constants'
-import { ethereum, BigDecimal } from '@graphprotocol/graph-ts'
+import { ethereum, BigDecimal, store, BigInt } from '@graphprotocol/graph-ts'
 
 /**
  * Tracks global aggregate data over daily windows
@@ -75,6 +84,7 @@ export function updateTokenHourData(token: Token, event: ethereum.Event): TokenH
     tokenHourData.high = tokenPrice
     tokenHourData.low = tokenPrice
     tokenHourData.close = tokenPrice
+    tokenHourData.archiveHelper = hourStartUnix.toString()
   }
 
   if (tokenPrice.gt(tokenHourData.high)) {
@@ -91,6 +101,8 @@ export function updateTokenHourData(token: Token, event: ethereum.Event): TokenH
   tokenHourData.totalValueLockedUSD = token.totalValueLockedUSD
   tokenHourData.save()
 
+  archiveHourData(BigInt.fromI32(hourStartUnix - 2764800), token) //current minute minus 86400 seconds * (32 days prior)
+
   return tokenHourData as TokenHourData
 }
 
@@ -98,7 +110,7 @@ export function updateTokenMinuteData(token: Token, event: ethereum.Event): Toke
   let bundle = Bundle.load('1')!
   let timestamp = event.block.timestamp.toI32()
   let minuteIndex = timestamp / 60 // get unique hour within unix history
-  let hourStartUnix = minuteIndex * 60 // want the rounded effect
+  let minuteStartUnix = minuteIndex * 60 // want the rounded effect
   let tokenDayID = token.id
     .toHexString()
     .concat('-')
@@ -108,7 +120,7 @@ export function updateTokenMinuteData(token: Token, event: ethereum.Event): Toke
 
   if (!tokenMinuteData) {
     tokenMinuteData = new TokenMinuteData(tokenDayID)
-    tokenMinuteData.periodStartUnix = hourStartUnix
+    tokenMinuteData.periodStartUnix = minuteStartUnix
     tokenMinuteData.token = token.id
     tokenMinuteData.volume = ZERO_BD
     tokenMinuteData.volumeUSD = ZERO_BD
@@ -118,6 +130,7 @@ export function updateTokenMinuteData(token: Token, event: ethereum.Event): Toke
     tokenMinuteData.high = tokenPrice
     tokenMinuteData.low = tokenPrice
     tokenMinuteData.close = tokenPrice
+    tokenMinuteData.archiveHelper = minuteStartUnix.toString()
   }
 
   if (tokenPrice.gt(tokenMinuteData.high)) {
@@ -134,5 +147,54 @@ export function updateTokenMinuteData(token: Token, event: ethereum.Event): Toke
   tokenMinuteData.totalValueLockedUSD = token.totalValueLockedUSD
   tokenMinuteData.save()
 
+  // Rolling deletion segment
+  archiveMinuteData(BigInt.fromI32(minuteStartUnix - 10800), token) //current minute minus 10800 seconds (28 hours)
+
   return tokenMinuteData as TokenMinuteData
+}
+
+function archiveMinuteData(dayAgo: BigInt, token: Token): void {
+  for (let interval = dayAgo; interval >= token.lastMinuteArchived; interval.minus(BigInt.fromI32(60))) {
+    let archiveHelper = ArchiveHelper.load(interval.toString())
+
+    if (archiveHelper) {
+      let minuteArray = archiveHelper.tokenMinuteDatas.load()
+
+      if (minuteArray && minuteArray.length > 0) {
+        for (let i = 0; i < minuteArray.length; i++) {
+          let minuteData = TokenMinuteData.load(minuteArray[i].id)
+
+          if (minuteData) {
+            store.remove('TokenMinuteData', minuteData.id)
+          }
+        }
+      }
+    }
+  }
+
+  if (dayAgo.gt(token.lastMinuteArchived)) token.lastMinuteArchived = dayAgo
+  token.save()
+}
+
+function archiveHourData(monthAgo: BigInt, token: Token): void {
+  for (let interval = monthAgo; interval >= token.lastHourArchived; interval.minus(BigInt.fromI32(3600))) {
+    let archiveHelper = ArchiveHelper.load(interval.toString())
+
+    if (archiveHelper) {
+      let hourArray = archiveHelper.tokenHourDatas.load()
+
+      if (hourArray && hourArray.length > 0) {
+        for (let i = 0; i < hourArray.length; i++) {
+          let hourData = TokenHourData.load(hourArray[i].id)
+
+          if (hourData) {
+            store.remove('TokenHourData', hourData.id)
+          }
+        }
+      }
+    }
+  }
+
+  if (monthAgo.gt(token.lastHourArchived)) token.lastHourArchived = monthAgo
+  token.save()
 }
