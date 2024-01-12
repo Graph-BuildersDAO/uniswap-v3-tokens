@@ -5,7 +5,7 @@ import { Swap as SwapEvent } from '../../../generated/templates/Pool/Pool'
 import { convertTokenToDecimal, safeDiv } from '../../utils'
 import { FACTORY_ADDRESS, ONE_BI, ZERO_BD } from '../../utils/constants'
 import { findEthPerToken, getEthPriceInUSD, getTrackedAmountUSD, sqrtPriceX96ToTokenPrices } from '../../utils/pricing'
-import { updateTokenDayData, updateTokenHourData } from '../../utils/intervalUpdates'
+import { updateTokenDayData, updateTokenHourData, updateTokenMinuteData } from '../../utils/intervalUpdates'
 
 export function handleSwap(event: SwapEvent): void {
   let bundle = Bundle.load('1')
@@ -120,19 +120,19 @@ export function handleSwap(event: SwapEvent): void {
       token1.totalValueLockedUSD = token1.totalValueLocked.times(token1.derivedETH).times(bundle.ethPriceUSD)
 
       // update fee growth
-      let poolContract = PoolABI.bind(event.address)
-      let feeGrowthGlobal0X128 = poolContract.feeGrowthGlobal0X128()
-      let feeGrowthGlobal1X128 = poolContract.feeGrowthGlobal1X128()
-      pool.feeGrowthGlobal0X128 = feeGrowthGlobal0X128 as BigInt
-      pool.feeGrowthGlobal1X128 = feeGrowthGlobal1X128 as BigInt
+      // let poolContract = PoolABI.bind(event.address)
+      // let feeGrowthGlobal0X128 = poolContract.feeGrowthGlobal0X128()
+      // let feeGrowthGlobal1X128 = poolContract.feeGrowthGlobal1X128()
+      // pool.feeGrowthGlobal0X128 = feeGrowthGlobal0X128 as BigInt
+      // pool.feeGrowthGlobal1X128 = feeGrowthGlobal1X128 as BigInt
 
       // interval data
       let token0DayData = updateTokenDayData(token0 as Token, event)
       let token1DayData = updateTokenDayData(token1 as Token, event)
       let token0HourData = updateTokenHourData(token0 as Token, event)
       let token1HourData = updateTokenHourData(token1 as Token, event)
-      let token0MinuteData = updateTokenDayData(token0 as Token, event)
-      let token1MinuteData = updateTokenDayData(token1 as Token, event)
+      let token0MinuteData = updateTokenMinuteData(token0 as Token, event)
+      let token1MinuteData = updateTokenMinuteData(token1 as Token, event)
 
       // update volume metrics
       // TODO: MOVE TO HELPER FUNCTIONS
@@ -161,7 +161,7 @@ export function handleSwap(event: SwapEvent): void {
       token1HourData.untrackedVolumeUSD = token1HourData.untrackedVolumeUSD.plus(amountTotalUSDTracked)
       token1HourData.feesUSD = token1HourData.feesUSD.plus(feesUSD)
 
-      token1MinuteData.volume = token1MinuteData.volume.plus(amount0Abs)
+      token1MinuteData.volume = token1MinuteData.volume.plus(amount1Abs)
       token1MinuteData.volumeUSD = token1MinuteData.volumeUSD.plus(amountTotalUSDTracked)
       token1MinuteData.untrackedVolumeUSD = token1MinuteData.untrackedVolumeUSD.plus(amountTotalUSDTracked)
       token1MinuteData.feesUSD = token1MinuteData.feesUSD.plus(feesUSD)
