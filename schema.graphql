@@ -210,7 +210,7 @@ type TokenHourData @entity {
   # close price USD
   close: BigDecimal!
   # archive helper id
-  archiveHelper: ArchiveHelper!
+  # archiveHelper: ArchiveHelper!
 }
 
 type TokenMinuteData @entity {
@@ -243,14 +243,14 @@ type TokenMinuteData @entity {
   # close price USD
   close: BigDecimal!
   # archive helper id
-  archiveHelper: ArchiveHelper!
+  # archiveHelper: ArchiveHelper!
 }
 
-type ArchiveHelper @entity(immutable: true) {
-  # unix timestamp for start of minute
-  id: ID!
-  #derived field to all hour records for this minute
-  tokenHourDatas: [TokenHourData!]! @derivedFrom(field: "archiveHelper")
-  #derived field to all minute records for this minute
-  tokenMinuteDatas: [TokenMinuteData!]! @derivedFrom(field: "archiveHelper")
-}
+# type ArchiveHelper @entity(immutable: true) {
+#   # unix timestamp for start of minute
+#   id: ID!
+#   #derived field to all hour records for this minute
+#   tokenHourDatas: [TokenHourData!]! @derivedFrom(field: "archiveHelper")
+#   #derived field to all minute records for this minute
+#   #tokenMinuteDatas: [TokenMinuteData!]! @derivedFrom(field: "archiveHelper")
+# }

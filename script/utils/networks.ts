@@ -15,7 +15,7 @@ export const networks : NetworkConfigs=  {
     },
     "ethereum": {
         studioEndpoint: "univ3-ethereum",
-        hostedEndpoint: "univ3-ethereum"
+        hostedEndpoint: "gundamdweeb/univ3-token-pricing-main"
     },
     "avax": {
         studioEndpoint: "univ3-avax",
