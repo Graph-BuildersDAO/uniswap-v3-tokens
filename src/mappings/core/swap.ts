@@ -119,12 +119,12 @@ export function handleSwap(event: SwapEvent): void {
       token0.totalValueLockedUSD = token0.totalValueLocked.times(token0.derivedETH).times(bundle.ethPriceUSD)
       token1.totalValueLockedUSD = token1.totalValueLocked.times(token1.derivedETH).times(bundle.ethPriceUSD)
 
-      // update fee growth
-      let poolContract = PoolABI.bind(event.address)
-      let feeGrowthGlobal0X128 = poolContract.feeGrowthGlobal0X128()
-      let feeGrowthGlobal1X128 = poolContract.feeGrowthGlobal1X128()
-      pool.feeGrowthGlobal0X128 = feeGrowthGlobal0X128 as BigInt
-      pool.feeGrowthGlobal1X128 = feeGrowthGlobal1X128 as BigInt
+      // update fee growth - Removed on token version
+      // let poolContract = PoolABI.bind(event.address)
+      // let feeGrowthGlobal0X128 = poolContract.feeGrowthGlobal0X128()
+      // let feeGrowthGlobal1X128 = poolContract.feeGrowthGlobal1X128()
+      // pool.feeGrowthGlobal0X128 = feeGrowthGlobal0X128 as BigInt
+      // pool.feeGrowthGlobal1X128 = feeGrowthGlobal1X128 as BigInt
 
       // interval data
       let token0DayData = updateTokenDayData(token0 as Token, event)
