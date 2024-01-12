@@ -7,8 +7,7 @@ import {
   TokenDayData,
   TokenHourData,
   TokenMinuteData,
-  Bundle,
-  ArchiveHelper
+  Bundle
 } from '../../generated/schema'
 import { FACTORY_ADDRESS } from './constants'
 import { ethereum, BigDecimal, store, BigInt } from '@graphprotocol/graph-ts'
@@ -84,7 +83,6 @@ export function updateTokenHourData(token: Token, event: ethereum.Event): TokenH
     tokenHourData.high = tokenPrice
     tokenHourData.low = tokenPrice
     tokenHourData.close = tokenPrice
-    tokenHourData.archiveHelper = hourStartUnix.toString()
   }
 
   if (tokenPrice.gt(tokenHourData.high)) {
@@ -101,7 +99,7 @@ export function updateTokenHourData(token: Token, event: ethereum.Event): TokenH
   tokenHourData.totalValueLockedUSD = token.totalValueLockedUSD
   tokenHourData.save()
 
-  archiveHourData(BigInt.fromI32(hourStartUnix - 2764800), token) //current minute minus 86400 seconds * (32 days prior)
+  archiveHourData(BigInt.fromI32(hourIndex - 768), token) //current minute minus 86400 seconds * (32 days prior)
 
   return tokenHourData as TokenHourData
 }
@@ -130,7 +128,6 @@ export function updateTokenMinuteData(token: Token, event: ethereum.Event): Toke
     tokenMinuteData.high = tokenPrice
     tokenMinuteData.low = tokenPrice
     tokenMinuteData.close = tokenPrice
-    tokenMinuteData.archiveHelper = minuteStartUnix.toString()
   }
 
   if (tokenPrice.gt(tokenMinuteData.high)) {
@@ -148,53 +145,47 @@ export function updateTokenMinuteData(token: Token, event: ethereum.Event): Toke
   tokenMinuteData.save()
 
   // Rolling deletion segment
-  archiveMinuteData(BigInt.fromI32(minuteStartUnix - 10800), token) //current minute minus 10800 seconds (28 hours)
+  archiveMinuteData(BigInt.fromI32(minuteIndex - 1680), token) //current minute minus 10800 seconds (28 hours)
 
   return tokenMinuteData as TokenMinuteData
 }
 
 function archiveMinuteData(dayAgo: BigInt, token: Token): void {
-  for (let interval = dayAgo; interval >= token.lastMinuteArchived; interval.minus(BigInt.fromI32(60))) {
-    let archiveHelper = ArchiveHelper.load(interval.toString())
-
-    if (archiveHelper) {
-      let minuteArray = archiveHelper.tokenMinuteDatas.load()
-
-      if (minuteArray && minuteArray.length > 0) {
-        for (let i = 0; i < minuteArray.length; i++) {
-          let minuteData = TokenMinuteData.load(minuteArray[i].id)
-
-          if (minuteData) {
-            store.remove('TokenMinuteData', minuteData.id)
-          }
-        }
-      }
+  for (let interval = dayAgo; interval >= token.lastMinuteArchived; interval.minus(BigInt.fromI32(1))) {
+    let tokenDayID = token.id
+    .toHexString()
+    .concat('-')
+    .concat(interval.toString())
+    let tokenMinuteData = TokenMinuteData.load(tokenDayID)
+    if (tokenMinuteData) {
+      store.remove('TokenMinuteData', tokenMinuteData.id)
     }
   }
 
-  if (dayAgo.gt(token.lastMinuteArchived)) token.lastMinuteArchived = dayAgo
+
+  let dayAgoBG = BigInt.fromI32(dayAgo.toI32() * 60)
+  if (dayAgoBG.gt(token.lastMinuteArchived)){
+    token.lastMinuteArchived = dayAgoBG;
+  }
+   
   token.save()
 }
 
 function archiveHourData(monthAgo: BigInt, token: Token): void {
-  for (let interval = monthAgo; interval >= token.lastHourArchived; interval.minus(BigInt.fromI32(3600))) {
-    let archiveHelper = ArchiveHelper.load(interval.toString())
-
-    if (archiveHelper) {
-      let hourArray = archiveHelper.tokenHourDatas.load()
-
-      if (hourArray && hourArray.length > 0) {
-        for (let i = 0; i < hourArray.length; i++) {
-          let hourData = TokenHourData.load(hourArray[i].id)
-
-          if (hourData) {
-            store.remove('TokenHourData', hourData.id)
-          }
-        }
-      }
+  for (let interval = monthAgo; interval >= token.lastHourArchived; interval.minus(BigInt.fromI32(1))) {
+    let tokenHourID = token.id
+    .toHexString()
+    .concat('-')
+    .concat(interval.toString())
+    let tokenHourData = TokenHourData.load(tokenHourID)
+    if (tokenHourData) {
+      store.remove('TokenHourData', tokenHourData.id)
     }
   }
-
-  if (monthAgo.gt(token.lastHourArchived)) token.lastHourArchived = monthAgo
+  
+  let monthAgoBG = BigInt.fromI32(monthAgo.toI32() * 3600)
+  if (monthAgoBG.gt(token.lastHourArchived)){
+    token.lastHourArchived = monthAgoBG
+  } 
   token.save()
 }
