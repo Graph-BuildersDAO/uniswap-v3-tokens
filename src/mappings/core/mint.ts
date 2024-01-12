@@ -66,12 +66,13 @@ export function handleMint(event: MintEvent): void {
     factory.totalValueLockedETH = factory.totalValueLockedETH.plus(pool.totalValueLockedETH)
     factory.totalValueLockedUSD = factory.totalValueLockedETH.times(bundle.ethPriceUSD)
 
-    updateTokenDayData(token0 as Token, event)
-    updateTokenDayData(token1 as Token, event)
-    updateTokenHourData(token0 as Token, event)
-    updateTokenHourData(token1 as Token, event)
-    updateTokenMinuteData(token0 as Token, event)
-    updateTokenMinuteData(token1 as Token, event)
+    // Removed due to populating 0 value entities with no swaps in that interval.
+    // updateTokenDayData(token0 as Token, event)
+    // updateTokenDayData(token1 as Token, event)
+    // updateTokenHourData(token0 as Token, event)
+    // updateTokenHourData(token1 as Token, event)
+    // updateTokenMinuteData(token0 as Token, event)
+    // updateTokenMinuteData(token1 as Token, event)
 
     token0.save()
     token1.save()

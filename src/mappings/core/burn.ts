@@ -39,12 +39,12 @@ export function handleBurn(event: BurnEvent): void {
         pool.liquidity = pool.liquidity.minus(event.params.amount)
       }
 
-      updateTokenDayData(token0 as Token, event)
-      updateTokenDayData(token1 as Token, event)
-      updateTokenHourData(token0 as Token, event)
-      updateTokenHourData(token1 as Token, event)
-      updateTokenMinuteData(token0 as Token, event)
-      updateTokenMinuteData(token1 as Token, event)
+      // updateTokenDayData(token0 as Token, event)
+      // updateTokenDayData(token1 as Token, event)
+      // updateTokenHourData(token0 as Token, event)
+      // updateTokenHourData(token1 as Token, event)
+      // updateTokenMinuteData(token0 as Token, event)
+      // updateTokenMinuteData(token1 as Token, event)
 
       token0.save()
       token1.save()
