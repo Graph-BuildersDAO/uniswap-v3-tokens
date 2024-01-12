@@ -31,7 +31,7 @@ export function updateTokenDayData(token: Token, event: ethereum.Event): TokenDa
   let tokenDayData = TokenDayData.load(tokenDayID)
   if (!tokenDayData) {
     tokenDayData = new TokenDayData(tokenDayID)
-    tokenDayData.date = dayStartTimestamp
+    tokenDayData.periodStartUnix = dayStartTimestamp
     tokenDayData.token = token.id
     tokenDayData.volume = ZERO_BD
     tokenDayData.volumeUSD = ZERO_BD
@@ -101,7 +101,7 @@ export function updateTokenHourData(token: Token, event: ethereum.Event): TokenH
   tokenHourData.totalValueLockedUSD = token.totalValueLockedUSD
   tokenHourData.save()
 
-  archiveHourData(BigInt.fromI32(hourStartUnix - 2764800), token) //current minute minus 86400 seconds * (32 days prior)
+  //archiveHourData(BigInt.fromI32(hourStartUnix - 2764800), token) //current minute minus 86400 seconds * (32 days prior)
 
   return tokenHourData as TokenHourData
 }
@@ -148,7 +148,7 @@ export function updateTokenMinuteData(token: Token, event: ethereum.Event): Toke
   tokenMinuteData.save()
 
   // Rolling deletion segment
-  archiveMinuteData(BigInt.fromI32(minuteStartUnix - 10800), token) //current minute minus 10800 seconds (28 hours)
+  //archiveMinuteData(BigInt.fromI32(minuteStartUnix - 10800), token) //current minute minus 10800 seconds (28 hours)
 
   return tokenMinuteData as TokenMinuteData
 }
