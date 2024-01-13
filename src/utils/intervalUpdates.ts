@@ -99,7 +99,19 @@ export function updateTokenHourData(token: Token, event: ethereum.Event): TokenH
   tokenHourData.totalValueLockedUSD = token.totalValueLockedUSD
   tokenHourData.save()
 
-  archiveHourData(BigInt.fromI32(hourIndex - 768), token) //current minute minus 86400 seconds * (32 days prior)
+  let lastHourArchived = token.lastHourArchived.toI32()
+  let lastHourRecorded = token.lastHourRecorded.toI32()
+  let difference = lastHourRecorded - lastHourArchived;
+  let interval = hourIndex - lastHourArchived -  768;
+  if(interval > 0){
+    if(difference < interval){
+      interval = difference
+    }
+    archiveHourData(BigInt.fromI32(lastHourArchived + interval), token) //cur
+  }
+  token.lastHourRecorded = BigInt.fromI32(hourIndex);
+  token.save()
+  
 
   return tokenHourData as TokenHourData
 }
@@ -144,14 +156,27 @@ export function updateTokenMinuteData(token: Token, event: ethereum.Event): Toke
   tokenMinuteData.totalValueLockedUSD = token.totalValueLockedUSD
   tokenMinuteData.save()
 
-  // Rolling deletion segment
-  archiveMinuteData(BigInt.fromI32(minuteIndex - 1680), token) //current minute minus 10800 seconds (28 hours)
+  let lastMinuteArchived = token.lastMinuteArchived.toI32()
+  let lastMinuteRecorded = token.lastMinuteRecorded.toI32()
+  let difference = lastMinuteRecorded - lastMinuteArchived;
+  let interval = minuteIndex - lastMinuteArchived -  1680;
+  if(interval > 0){
+    if(difference < interval){
+      interval = difference
+    }
+    archiveMinuteData(BigInt.fromI32(lastMinuteArchived + interval), token)
+  }
 
+  token.lastMinuteRecorded =  BigInt.fromI32(minuteIndex);
+  token.save()
+  // Rolling deletion segment
+   //current minute minus 10800 seconds (28 hours)
+ 
   return tokenMinuteData as TokenMinuteData
 }
 
-function archiveMinuteData(dayAgo: BigInt, token: Token): void {
-  for (let interval = dayAgo; interval >= token.lastMinuteArchived; interval.minus(BigInt.fromI32(1))) {
+function archiveMinuteData(end: BigInt, token: Token): void {
+  for (let interval = token.lastMinuteArchived; interval >= end; interval.plus(BigInt.fromI32(1))) {
     let tokenDayID = token.id
     .toHexString()
     .concat('-')
@@ -162,17 +187,12 @@ function archiveMinuteData(dayAgo: BigInt, token: Token): void {
     }
   }
 
-
-  let dayAgoBG = BigInt.fromI32(dayAgo.toI32() * 60)
-  if (dayAgoBG.gt(token.lastMinuteArchived)){
-    token.lastMinuteArchived = dayAgoBG;
-  }
-   
+  token.lastMinuteArchived = end;
   token.save()
 }
 
-function archiveHourData(monthAgo: BigInt, token: Token): void {
-  for (let interval = monthAgo; interval >= token.lastHourArchived; interval.minus(BigInt.fromI32(1))) {
+function archiveHourData(end: BigInt, token: Token): void {
+  for (let interval = token.lastHourArchived; interval >= end; interval.plus(BigInt.fromI32(1))) {
     let tokenHourID = token.id
     .toHexString()
     .concat('-')
@@ -183,9 +203,6 @@ function archiveHourData(monthAgo: BigInt, token: Token): void {
     }
   }
   
-  let monthAgoBG = BigInt.fromI32(monthAgo.toI32() * 3600)
-  if (monthAgoBG.gt(token.lastHourArchived)){
-    token.lastHourArchived = monthAgoBG
-  } 
+  token.lastHourArchived = end
   token.save()
 }

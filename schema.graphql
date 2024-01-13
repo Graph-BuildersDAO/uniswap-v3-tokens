@@ -78,6 +78,10 @@ type Token @entity {
   # Archive helpers
   lastMinuteArchived: BigInt!
   lastHourArchived: BigInt!
+
+    # Archive helpers
+  lastMinuteRecorded: BigInt!
+  lastHourRecorded: BigInt!
 }
 
 type _Schema_
@@ -95,6 +99,8 @@ type Pool @entity {
   createdAtTimestamp: BigInt!
   # block pool was created at
   createdAtBlockNumber: BigInt!
+  # block pool called balanceOf 
+  balanceOfBlock: BigInt!
   # token0
   token0: Token!
   # token1
