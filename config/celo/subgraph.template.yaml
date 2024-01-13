@@ -9,11 +9,11 @@ features:
 dataSources:
   - kind: ethereum/contract
     name: Factory
-    network: { { network } }
+    network: {{network}}
     source:
       address: '{{factory}}'
       abi: Factory
-      startBlock: { { startblock } }
+      startBlock: {{startblock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -39,7 +39,7 @@ dataSources:
 templates:
   - kind: ethereum/contract
     name: Pool
-    network: { { network } }
+    network: {{network}}
     source:
       abi: Pool
     mapping:
