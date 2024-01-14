@@ -189,7 +189,7 @@ export function updateTokenMinuteData(token: Token, event: ethereum.Event): Toke
 
 function archiveMinuteData(end: BigInt, token: Token): void {
   let interval = token.lastMinuteArchived
-  let limiter = 1
+  let limiter = token.lastMinuteArchived
   for (; interval < end.plus(BigInt.fromI32(1)); interval.plus(BigInt.fromI32(1))) {
     let tokenDayID = token.id
     .toHexString()
@@ -199,19 +199,19 @@ function archiveMinuteData(end: BigInt, token: Token): void {
     // if (tokenMinuteData) {
       store.remove('TokenMinuteData', tokenDayID)
     // }
-    if(limiter == 100){
+    if(limiter.equals(token.lastMinuteArchived.plus(BigInt.fromI32(1000)))){
       break
     }
-    limiter++
+    limiter = limiter.plus(BigInt.fromI32(1))
   }
 
-  token.lastMinuteArchived = interval;
+  token.lastMinuteArchived = limiter;
   token.save()
 }
 
 function archiveHourData(end: BigInt, token: Token): void {
   let interval = token.lastHourArchived
-  let limiter = 1
+  let limiter = token.lastHourArchived
   for (; interval < end.plus(BigInt.fromI32(1)); interval.plus(BigInt.fromI32(1))) {
     let tokenHourID = token.id
     .toHexString()
@@ -221,12 +221,12 @@ function archiveHourData(end: BigInt, token: Token): void {
     // if (tokenHourData) {
       store.remove('TokenHourData', tokenHourID)
     // }
-    if(limiter == 100){
+    if(limiter.equals(token.lastHourArchived.plus(BigInt.fromI32(1000)))){
       break
     }
-    limiter++
+    limiter = limiter.plus(BigInt.fromI32(1))
   }
   
-  token.lastHourArchived = interval
+  token.lastHourArchived = limiter
   token.save()
 }
