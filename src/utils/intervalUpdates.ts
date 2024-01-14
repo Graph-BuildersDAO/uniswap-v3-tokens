@@ -1,14 +1,6 @@
 import { ZERO_BD, ZERO_BI, ONE_BI } from './constants'
 /* eslint-disable prefer-const */
-import {
-  Factory,
-  Pool,
-  Token,
-  TokenDayData,
-  TokenHourData,
-  TokenMinuteData,
-  Bundle
-} from '../../generated/schema'
+import { Factory, Pool, Token, TokenDayData, TokenHourData, TokenMinuteData, Bundle } from '../../generated/schema'
 import { FACTORY_ADDRESS } from './constants'
 import { ethereum, BigDecimal, store, BigInt } from '@graphprotocol/graph-ts'
 
@@ -30,7 +22,7 @@ export function updateTokenDayData(token: Token, event: ethereum.Event): TokenDa
   let tokenDayData = TokenDayData.load(tokenDayID)
   if (!tokenDayData) {
     tokenDayData = new TokenDayData(tokenDayID)
-    tokenDayData.date = dayStartTimestamp
+    tokenDayData.periodStartUnix = dayStartTimestamp
     tokenDayData.token = token.id
     tokenDayData.volume = ZERO_BD
     tokenDayData.volumeUSD = ZERO_BD
@@ -99,6 +91,7 @@ export function updateTokenHourData(token: Token, event: ethereum.Event): TokenH
   tokenHourData.totalValueLocked = token.totalValueLocked
   tokenHourData.totalValueLockedUSD = token.totalValueLockedUSD
   tokenHourData.save()
+
   if(isNew){
     let lastHourArchived = token.lastHourArchived.toI32()
     let lastHourRecorded = token.lastHourRecorded.toI32()
@@ -116,7 +109,6 @@ export function updateTokenHourData(token: Token, event: ethereum.Event): TokenH
     token.lastHourRecorded = BigInt.fromI32(hourIndex);
     token.save()
   }
-  
   
 
   return tokenHourData as TokenHourData
@@ -182,8 +174,9 @@ export function updateTokenMinuteData(token: Token, event: ethereum.Event): Toke
   }
   
   // Rolling deletion segment
+
    //current minute minus 10800 seconds (28 hours)
- 
+
   return tokenMinuteData as TokenMinuteData
 }
 
@@ -192,6 +185,7 @@ function archiveMinuteData(end: BigInt, token: Token): void {
   let limiter = token.lastMinuteArchived
   for (; interval < end.plus(BigInt.fromI32(1)); interval.plus(BigInt.fromI32(1))) {
     let tokenDayID = token.id
+
     .toHexString()
     .concat('-')
     .concat(interval.toString())

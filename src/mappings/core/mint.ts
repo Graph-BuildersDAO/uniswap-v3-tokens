@@ -67,6 +67,7 @@ export function handleMint(event: MintEvent): void {
       factory.totalValueLockedUSD = factory.totalValueLockedETH.times(bundle.ethPriceUSD)
     }
 
+    // Removed due to populating 0 value entities with no swaps in that interval.
     // updateTokenDayData(token0 as Token, event)
     // updateTokenDayData(token1 as Token, event)
     // updateTokenHourData(token0 as Token, event)

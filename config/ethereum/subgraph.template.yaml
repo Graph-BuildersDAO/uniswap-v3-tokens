@@ -68,5 +68,10 @@ templates:
         - event: Mint(address,indexed address,indexed int24,indexed int24,uint128,uint256,uint256)
           handler: handleMint
           receipt: true
+        #- event: Burn(indexed address,indexed int24,indexed int24,uint128,uint256,uint256)
+        #  handler: handleBurn
+        #  receipt: true
+        #- event: Flash(indexed address,indexed address,uint256,uint256,uint256,uint256)
+        #  handler: handleFlash
         - event: Collect(indexed address,address,indexed int24,indexed int24,uint128,uint128)
           handler: handleCollect

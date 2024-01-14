@@ -159,7 +159,7 @@ type TokenDayData @entity {
   # token address concatendated with date
   id: ID!
   # timestamp rounded to current day by dividing by 86400
-  date: Int!
+  periodStartUnix: Int!
   # pointer to token
   token: Token!
   # volume in token units

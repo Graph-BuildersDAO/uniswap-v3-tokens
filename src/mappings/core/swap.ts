@@ -166,7 +166,7 @@ export function handleSwap(event: SwapEvent): void {
       token1HourData.untrackedVolumeUSD = token1HourData.untrackedVolumeUSD.plus(amountTotalUSDTracked)
       token1HourData.feesUSD = token1HourData.feesUSD.plus(feesUSD)
 
-      token1MinuteData.volume = token1MinuteData.volume.plus(amount0Abs)
+      token1MinuteData.volume = token1MinuteData.volume.plus(amount1Abs)
       token1MinuteData.volumeUSD = token1MinuteData.volumeUSD.plus(amountTotalUSDTracked)
       token1MinuteData.untrackedVolumeUSD = token1MinuteData.untrackedVolumeUSD.plus(amountTotalUSDTracked)
       token1MinuteData.feesUSD = token1MinuteData.feesUSD.plus(feesUSD)
