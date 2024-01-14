@@ -23,7 +23,6 @@ export function handleMint(event: MintEvent): void {
 
     // reset tvl aggregates until new amounts calculated
     // KENT TODO: MOVE LOWER - AFTER CHECKING IF POOL APPROVED
-    factory.totalValueLockedETH = factory.totalValueLockedETH.minus(pool.totalValueLockedETH)
 
     //update position
 
@@ -54,17 +53,19 @@ export function handleMint(event: MintEvent): void {
       pool.liquidity = pool.liquidity.plus(event.params.amount)
     }
 
-    pool.totalValueLockedToken0 = pool.totalValueLockedToken0.plus(amount0)
-    pool.totalValueLockedToken1 = pool.totalValueLockedToken1.plus(amount1)
-    pool.totalValueLockedETH = pool.totalValueLockedToken0
-      .times(token0.derivedETH)
-      .plus(pool.totalValueLockedToken1.times(token1.derivedETH))
-    pool.totalValueLockedUSD = pool.totalValueLockedETH.times(bundle.ethPriceUSD)
+    if (pool.balanceOfBlock < event.block.number) {
+      factory.totalValueLockedETH = factory.totalValueLockedETH.minus(pool.totalValueLockedETH)
 
-    // reset aggregates with new amounts
-    // KENT TODO: MOVE LOWER - AFTER CHECKING IF POOL APPROVED
-    factory.totalValueLockedETH = factory.totalValueLockedETH.plus(pool.totalValueLockedETH)
-    factory.totalValueLockedUSD = factory.totalValueLockedETH.times(bundle.ethPriceUSD)
+      pool.totalValueLockedToken0 = pool.totalValueLockedToken0.plus(amount0)
+      pool.totalValueLockedToken1 = pool.totalValueLockedToken1.plus(amount1)
+      pool.totalValueLockedETH = pool.totalValueLockedToken0
+        .times(token0.derivedETH)
+        .plus(pool.totalValueLockedToken1.times(token1.derivedETH))
+      pool.totalValueLockedUSD = pool.totalValueLockedETH.times(bundle.ethPriceUSD)
+
+      factory.totalValueLockedETH = factory.totalValueLockedETH.plus(pool.totalValueLockedETH)
+      factory.totalValueLockedUSD = factory.totalValueLockedETH.times(bundle.ethPriceUSD)
+    }
 
     // Removed due to populating 0 value entities with no swaps in that interval.
     // updateTokenDayData(token0 as Token, event)

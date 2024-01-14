@@ -60,8 +60,9 @@ export function handleSwap(event: SwapEvent): void {
       // reset aggregate tvl before individual pool tvl updates
       let currentPoolTvlETH = pool.totalValueLockedETH
       // KENT TODO: MOVE LOWER - AFTER CHECKING IF POOL APPROVED
-      factory.totalValueLockedETH = factory.totalValueLockedETH.minus(currentPoolTvlETH)
-
+      if(pool.balanceOfBlock < event.block.number){
+        factory.totalValueLockedETH = factory.totalValueLockedETH.minus(currentPoolTvlETH)
+      }
       // pool volume
       pool.volumeToken0 = pool.volumeToken0.plus(amount0Abs)
       pool.volumeToken1 = pool.volumeToken1.plus(amount1Abs)
@@ -74,8 +75,10 @@ export function handleSwap(event: SwapEvent): void {
       pool.liquidity = event.params.liquidity
       pool.tick = BigInt.fromI32(event.params.tick)
       pool.sqrtPrice = event.params.sqrtPriceX96
-      pool.totalValueLockedToken0 = pool.totalValueLockedToken0.plus(amount0)
-      pool.totalValueLockedToken1 = pool.totalValueLockedToken1.plus(amount1)
+      if(pool.balanceOfBlock < event.block.number){
+        pool.totalValueLockedToken0 = pool.totalValueLockedToken0.plus(amount0)
+        pool.totalValueLockedToken1 = pool.totalValueLockedToken1.plus(amount1)
+      }
 
       token0.volume = token0.volume.plus(amount0Abs)
       token0.totalValueLocked = token0.totalValueLocked.plus(amount0)
@@ -107,14 +110,16 @@ export function handleSwap(event: SwapEvent): void {
       /**
        * Things afffected by new USD rates
        */
-      pool.totalValueLockedETH = pool.totalValueLockedToken0
-        .times(token0.derivedETH)
-        .plus(pool.totalValueLockedToken1.times(token1.derivedETH))
-      pool.totalValueLockedUSD = pool.totalValueLockedETH.times(bundle.ethPriceUSD)
+      if(pool.balanceOfBlock < event.block.number){
+        pool.totalValueLockedETH = pool.totalValueLockedToken0
+          .times(token0.derivedETH)
+          .plus(pool.totalValueLockedToken1.times(token1.derivedETH))
+        pool.totalValueLockedUSD = pool.totalValueLockedETH.times(bundle.ethPriceUSD)
 
-      // KENT TODO: MOVE LOWER - AFTER CHECKING IF POOL APPROVED
-      factory.totalValueLockedETH = factory.totalValueLockedETH.plus(pool.totalValueLockedETH)
-      factory.totalValueLockedUSD = factory.totalValueLockedETH.times(bundle.ethPriceUSD)
+        // KENT TODO: MOVE LOWER - AFTER CHECKING IF POOL APPROVED
+        factory.totalValueLockedETH = factory.totalValueLockedETH.plus(pool.totalValueLockedETH)
+        factory.totalValueLockedUSD = factory.totalValueLockedETH.times(bundle.ethPriceUSD)
+      }
 
       token0.totalValueLockedUSD = token0.totalValueLocked.times(token0.derivedETH).times(bundle.ethPriceUSD)
       token1.totalValueLockedUSD = token1.totalValueLocked.times(token1.derivedETH).times(bundle.ethPriceUSD)
