@@ -5,7 +5,7 @@ import { Swap as SwapEvent } from '../../../generated/templates/Pool/Pool'
 import { convertTokenToDecimal, safeDiv } from '../../utils'
 import { FACTORY_ADDRESS, ONE_BI, ZERO_BD } from '../../utils/constants'
 import { findEthPerToken, getEthPriceInUSD, getTrackedAmountUSD, sqrtPriceX96ToTokenPrices } from '../../utils/pricing'
-import { updateTokenDayData, updateTokenHourData } from '../../utils/intervalUpdates'
+import { updateTokenDayData, updateTokenHourData, updateTokenMinuteData } from '../../utils/intervalUpdates'
 
 export function handleSwap(event: SwapEvent): void {
   let bundle = Bundle.load('1')
@@ -136,8 +136,8 @@ export function handleSwap(event: SwapEvent): void {
       let token1DayData = updateTokenDayData(token1 as Token, event)
       let token0HourData = updateTokenHourData(token0 as Token, event)
       let token1HourData = updateTokenHourData(token1 as Token, event)
-      let token0MinuteData = updateTokenDayData(token0 as Token, event)
-      let token1MinuteData = updateTokenDayData(token1 as Token, event)
+      let token0MinuteData = updateTokenMinuteData(token0 as Token, event)
+      let token1MinuteData = updateTokenMinuteData(token1 as Token, event)
 
       // update volume metrics
       // TODO: MOVE TO HELPER FUNCTIONS

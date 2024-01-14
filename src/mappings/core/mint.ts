@@ -52,7 +52,7 @@ export function handleMint(event: MintEvent): void {
     ) {
       pool.liquidity = pool.liquidity.plus(event.params.amount)
     }
-    
+
     if (pool.balanceOfBlock < event.block.number) {
       factory.totalValueLockedETH = factory.totalValueLockedETH.minus(pool.totalValueLockedETH)
 
@@ -67,12 +67,12 @@ export function handleMint(event: MintEvent): void {
       factory.totalValueLockedUSD = factory.totalValueLockedETH.times(bundle.ethPriceUSD)
     }
 
-    updateTokenDayData(token0 as Token, event)
-    updateTokenDayData(token1 as Token, event)
-    updateTokenHourData(token0 as Token, event)
-    updateTokenHourData(token1 as Token, event)
-    updateTokenMinuteData(token0 as Token, event)
-    updateTokenMinuteData(token1 as Token, event)
+    // updateTokenDayData(token0 as Token, event)
+    // updateTokenDayData(token1 as Token, event)
+    // updateTokenHourData(token0 as Token, event)
+    // updateTokenHourData(token1 as Token, event)
+    // updateTokenMinuteData(token0 as Token, event)
+    // updateTokenMinuteData(token1 as Token, event)
 
     token0.save()
     token1.save()
