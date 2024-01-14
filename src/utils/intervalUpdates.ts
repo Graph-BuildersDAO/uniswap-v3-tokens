@@ -104,7 +104,7 @@ export function updateTokenHourData(token: Token, event: ethereum.Event): TokenH
   let difference = lastHourRecorded - lastHourArchived;
   let interval = hourIndex - lastHourArchived -  768;
   if(interval > 0){
-    if(difference < interval){
+    if(difference > 0 && difference < interval){
       interval = difference
     }
     archiveHourData(BigInt.fromI32(lastHourArchived + interval), token) //cur
@@ -161,7 +161,7 @@ export function updateTokenMinuteData(token: Token, event: ethereum.Event): Toke
   let difference = lastMinuteRecorded - lastMinuteArchived;
   let interval = minuteIndex - lastMinuteArchived -  1680;
   if(interval > 0){
-    if(difference < interval){
+    if(difference > 0 && difference < interval){
       interval = difference
     }
     archiveMinuteData(BigInt.fromI32(lastMinuteArchived + interval), token)
@@ -176,7 +176,7 @@ export function updateTokenMinuteData(token: Token, event: ethereum.Event): Toke
 }
 
 function archiveMinuteData(end: BigInt, token: Token): void {
-  for (let interval = token.lastMinuteArchived; interval >= end; interval.plus(BigInt.fromI32(1))) {
+  for (let interval = token.lastMinuteArchived; interval < end.plus(BigInt.fromI32(1)); interval.plus(BigInt.fromI32(1))) {
     let tokenDayID = token.id
     .toHexString()
     .concat('-')
@@ -192,7 +192,7 @@ function archiveMinuteData(end: BigInt, token: Token): void {
 }
 
 function archiveHourData(end: BigInt, token: Token): void {
-  for (let interval = token.lastHourArchived; interval >= end; interval.plus(BigInt.fromI32(1))) {
+  for (let interval = token.lastHourArchived; interval < end.plus(BigInt.fromI32(1)); interval.plus(BigInt.fromI32(1))) {
     let tokenHourID = token.id
     .toHexString()
     .concat('-')
