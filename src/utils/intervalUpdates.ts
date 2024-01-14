@@ -102,7 +102,7 @@ export function updateTokenHourData(token: Token, event: ethereum.Event): TokenH
   let lastHourArchived = token.lastHourArchived.toI32()
   let lastHourRecorded = token.lastHourRecorded.toI32()
   let difference = lastHourRecorded - lastHourArchived;
-  let interval = hourIndex - lastHourArchived -  768;
+  let interval = hourIndex - lastHourArchived -  384;
   if(interval > 0){
     if(difference > 0 && difference < interval){
       interval = difference
@@ -159,7 +159,7 @@ export function updateTokenMinuteData(token: Token, event: ethereum.Event): Toke
   let lastMinuteArchived = token.lastMinuteArchived.toI32()
   let lastMinuteRecorded = token.lastMinuteRecorded.toI32()
   let difference = lastMinuteRecorded - lastMinuteArchived;
-  let interval = minuteIndex - lastMinuteArchived -  1680;
+  let interval = minuteIndex - lastMinuteArchived -  840;
   if(interval > 0){
     if(difference > 0 && difference < interval){
       interval = difference
