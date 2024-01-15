@@ -16,6 +16,12 @@ export const factoryContract = FactoryContract.bind(FACTORY_ADDRESS)
 export const REFERENCE_TOKEN = '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c' // WBNB
 export const STABLE_TOKEN_POOL = '0x6fe9e9de56356f7edbfcbb29fab7cd69471a4869' // WBNB/USDT 0.05%
 
+export const ROLL_DELETE_HOUR = 768
+export const ROLL_DELETE_MINUTE = 1680
+
+export const ROLL_DELETE_HOUR_LIMITER = BigInt.fromI32(500)
+export const ROLL_DELETE_MINUTE_LIMITER = BigInt.fromI32(1000)
+
 // token where amounts should contribute to tracked volume and liquidity
 // usually tokens that many tokens are paired with s
 export const WHITELIST_TOKENS: string[] = [

@@ -38,10 +38,10 @@ export function handlePoolCreated(event: PoolCreated): void {
     token0.symbol = fetchTokenSymbol(event.params.token0)
     token0.name = fetchTokenName(event.params.token0)
     token0.totalSupply = fetchTokenTotalSupply(event.params.token0)
-    token0.lastMinuteArchived = BigInt.fromI32(event.block.timestamp.toI32() / 60);
-    token0.lastHourArchived = BigInt.fromI32(event.block.timestamp.toI32() / 3600);
-    token0.lastMinuteRecorded = BigInt.fromI32(event.block.timestamp.toI32() / 60);
-    token0.lastHourRecorded = BigInt.fromI32(event.block.timestamp.toI32() / 3600);
+    token0.lastMinuteArchived = BigInt.fromI32(0);
+    token0.lastHourArchived = BigInt.fromI32(0);
+    token0.lastMinuteRecorded = BigInt.fromI32(0);
+    token0.lastHourRecorded = BigInt.fromI32(0);
     let decimals = fetchTokenDecimals(event.params.token0)
 
     // bail if we couldn't figure out the decimals
@@ -62,6 +62,8 @@ export function handlePoolCreated(event: PoolCreated): void {
     token0.txCount = ZERO_BI
     token0.poolCount = ZERO_BI
     token0.whitelistPools = []
+    token0.minuteArray = []
+    token0.hourArray = []
   }
 
   if (!token1) {
@@ -70,10 +72,10 @@ export function handlePoolCreated(event: PoolCreated): void {
     token1.symbol = fetchTokenSymbol(event.params.token1)
     token1.name = fetchTokenName(event.params.token1)
     token1.totalSupply = fetchTokenTotalSupply(event.params.token1)
-    token1.lastMinuteArchived = BigInt.fromI32(event.block.timestamp.toI32() / 60);
-    token1.lastHourArchived = BigInt.fromI32(event.block.timestamp.toI32() / 3600);
-    token1.lastMinuteRecorded = BigInt.fromI32(event.block.timestamp.toI32() / 60);
-    token1.lastHourRecorded = BigInt.fromI32(event.block.timestamp.toI32() / 3600);
+    token1.lastMinuteArchived = BigInt.fromI32(0);
+    token1.lastHourArchived = BigInt.fromI32(0);
+    token1.lastMinuteRecorded = BigInt.fromI32(0);
+    token1.lastHourRecorded = BigInt.fromI32(0);
     let decimals = fetchTokenDecimals(event.params.token1)
     // bail if we couldn't figure out the decimals
     if (!decimals) {
@@ -92,6 +94,8 @@ export function handlePoolCreated(event: PoolCreated): void {
     token1.txCount = ZERO_BI
     token1.poolCount = ZERO_BI
     token1.whitelistPools = []
+    token1.minuteArray = []
+    token1.hourArray = []
   }
 
   // update white listed pools
