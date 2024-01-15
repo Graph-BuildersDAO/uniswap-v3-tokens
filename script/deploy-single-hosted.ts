@@ -1,6 +1,6 @@
 const util = require('util')
 const exec = util.promisify(require('child_process').exec)
-import {networks} from "./utils/my-networks";
+import {networks} from "./utils/networks";
 import {build, deployHosted} from "./utils/deploy-utils";
 
 
