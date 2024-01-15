@@ -79,6 +79,10 @@ type Token @entity {
   lastMinuteArchived: BigInt!
   lastHourArchived: BigInt!
 
+  # Archive helpers
+  minuteArray: [Int!]!
+  hourArray: [Int!]!
+
     # Archive helpers
   lastMinuteRecorded: BigInt!
   lastHourRecorded: BigInt!

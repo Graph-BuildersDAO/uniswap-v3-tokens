@@ -1,7 +1,14 @@
-import { ZERO_BD, ROLL_DELETE_HOUR_LIMITER, ROLL_DELETE_MINUTE_LIMITER, ROLL_DELETE_MINUTE, ROLL_DELETE_HOUR } from './constants'
+import {
+  ZERO_BD,
+  ROLL_DELETE_HOUR_LIMITER,
+  ROLL_DELETE_MINUTE_LIMITER,
+  ROLL_DELETE_MINUTE,
+  ROLL_DELETE_HOUR,
+  ZERO_BI
+} from './constants'
 /* eslint-disable prefer-const */
 import { Token, TokenDayData, TokenHourData, TokenMinuteData, Bundle } from '../../generated/schema'
-import { ethereum, store, BigInt } from '@graphprotocol/graph-ts'
+import { ethereum, store, BigInt, log } from '@graphprotocol/graph-ts'
 
 /**
  * Tracks global aggregate data over daily windows
@@ -74,6 +81,10 @@ export function updateTokenHourData(token: Token, event: ethereum.Event): TokenH
     tokenHourData.high = tokenPrice
     tokenHourData.low = tokenPrice
     tokenHourData.close = tokenPrice
+    let tokenHourArray = token.hourArray
+    tokenHourArray.push(hourIndex)
+    token.hourArray = tokenHourArray
+    token.save()
     isNew = true
   }
 
@@ -91,24 +102,20 @@ export function updateTokenHourData(token: Token, event: ethereum.Event): TokenH
   tokenHourData.totalValueLockedUSD = token.totalValueLockedUSD
   tokenHourData.save()
 
-  if(isNew){
+  if (token.lastHourArchived.equals(ZERO_BI) && token.lastHourRecorded.equals(ZERO_BI)) {
+    token.lastHourRecorded = BigInt.fromI32(hourIndex)
+    token.lastHourArchived = BigInt.fromI32(hourIndex)
+  }
+
+  if (isNew) {
     let lastHourArchived = token.lastHourArchived.toI32()
-    let lastHourRecorded = token.lastHourRecorded.toI32()
-    let interval = hourIndex - lastHourArchived -  ROLL_DELETE_HOUR;
-    if(interval > 0){
-    let difference = lastHourRecorded - lastHourArchived;
-    let lastRecordedDiff = hourIndex - lastHourRecorded -  ROLL_DELETE_HOUR;
-    
-    
-      if(interval > difference && lastRecordedDiff > 0){
-        interval = difference
-      }
-      archiveHourData(BigInt.fromI32(lastHourArchived + interval), token) //cur
+    let interval = hourIndex - lastHourArchived - ROLL_DELETE_HOUR
+    if (interval > 0) {
+      archiveHourData(token) //cur
     }
-    token.lastHourRecorded = BigInt.fromI32(hourIndex);
+    token.lastHourRecorded = BigInt.fromI32(hourIndex)
     token.save()
   }
-  
 
   return tokenHourData as TokenHourData
 }
@@ -124,7 +131,7 @@ export function updateTokenMinuteData(token: Token, event: ethereum.Event): Toke
     .concat(minuteIndex.toString())
   let tokenMinuteData = TokenMinuteData.load(tokenMinuteID)
   let tokenPrice = token.derivedETH.times(bundle.ethPriceUSD)
-  let isNew = false;
+  let isNew = false
   if (!tokenMinuteData) {
     tokenMinuteData = new TokenMinuteData(tokenMinuteID)
     tokenMinuteData.periodStartUnix = minuteStartUnix
@@ -137,6 +144,10 @@ export function updateTokenMinuteData(token: Token, event: ethereum.Event): Toke
     tokenMinuteData.high = tokenPrice
     tokenMinuteData.low = tokenPrice
     tokenMinuteData.close = tokenPrice
+    let tokenMinuteArray = token.minuteArray
+    tokenMinuteArray.push(minuteIndex)
+    token.minuteArray = tokenMinuteArray
+    token.save()
     isNew = true
   }
 
@@ -153,70 +164,86 @@ export function updateTokenMinuteData(token: Token, event: ethereum.Event): Toke
   tokenMinuteData.totalValueLocked = token.totalValueLocked
   tokenMinuteData.totalValueLockedUSD = token.totalValueLockedUSD
   tokenMinuteData.save()
-  if(isNew){
+
+  if (token.lastMinuteArchived.equals(ZERO_BI) && token.lastMinuteRecorded.equals(ZERO_BI)) {
+    token.lastMinuteRecorded = BigInt.fromI32(minuteIndex)
+    token.lastMinuteArchived = BigInt.fromI32(minuteIndex)
+  }
+  if (isNew) {
     let lastMinuteArchived = token.lastMinuteArchived.toI32()
-    let lastMinuteRecorded = token.lastMinuteRecorded.toI32()
-    let interval = minuteIndex - lastMinuteArchived -  ROLL_DELETE_MINUTE;
-    if(interval > 0){
-    let lastRecordedDiff = minuteIndex - lastMinuteRecorded -  ROLL_DELETE_MINUTE;
-    let difference = lastMinuteRecorded - lastMinuteArchived;
-   
-   
-      if(interval > difference && lastRecordedDiff > 0){
-        interval = difference
-      }
-      archiveMinuteData(BigInt.fromI32(lastMinuteArchived + interval), token)
+    let interval = minuteIndex - lastMinuteArchived - ROLL_DELETE_MINUTE
+    if (interval > 0) {
+      archiveMinuteData(token)
     }
-  
-    token.lastMinuteRecorded =  BigInt.fromI32(minuteIndex);
+
+    token.lastMinuteRecorded = BigInt.fromI32(minuteIndex)
     token.save()
   }
-  
+
   // Rolling deletion segment
 
-   //current minute minus 10800 seconds (28 hours)
+  //current minute minus 10800 seconds (28 hours)
 
   return tokenMinuteData as TokenMinuteData
 }
 
-function archiveMinuteData(end: BigInt, token: Token): void {
-  let limiter = token.lastMinuteArchived
-  for (let interval = token.lastMinuteArchived; interval < end; interval.plus(BigInt.fromI32(1))) {
+function archiveMinuteData(token: Token): void {
+  // log.warning('ARCHIVING MINUTE - {}   - TOKEN - {}', [token.lastMinuteArchived.toString(), token.id.toHexString()])
+  let length = token.minuteArray.length
+  let array = token.minuteArray
+  let modArray = token.minuteArray
+  let last = 0
+  for (let i = 0; i < length; i++) {
     let tokenMinuteID = token.id
-    .toHexString()
-    .concat('-')
-    .concat(interval.toString())
-    let tokenMinuteData = TokenMinuteData.load(tokenMinuteID)
-    if (tokenMinuteData) {
-      store.remove('TokenMinuteData', tokenMinuteID)
-    }
-    if(interval.equals(token.lastMinuteArchived.plus(ROLL_DELETE_MINUTE_LIMITER))){
+      .toHexString()
+      .concat('-')
+      .concat(array[i].toString())
+    // let tokenMinuteData = TokenMinuteData.load(tokenMinuteID)
+    // if (tokenMinuteData) {
+    store.remove('TokenMinuteData', tokenMinuteID)
+    // }
+    modArray.shift()
+    last = array[i]
+    if (BigInt.fromI32(i + 1).equals(ROLL_DELETE_MINUTE_LIMITER)) {
+      // log.warning('INTERVAL REACH - {} - LIMITER - {}', [tokenMinuteID, i.toString()])
       break
     }
-    limiter = limiter.plus(BigInt.fromI32(1))
   }
-
-  token.lastMinuteArchived = limiter;
+  if (modArray) {
+    token.minuteArray = modArray
+  } else {
+    token.minuteArray = []
+  }
+  token.lastMinuteArchived = BigInt.fromI32(last)
   token.save()
 }
 
-function archiveHourData(end: BigInt, token: Token): void {
-  let limiter = token.lastHourArchived
-  for (let interval = token.lastHourArchived; interval < end; interval.plus(BigInt.fromI32(1))) {
+function archiveHourData(token: Token): void {
+  let length = token.hourArray.length
+  let array = token.hourArray
+  let modArray = token.hourArray
+  let last = 0
+  for (let i = 0; i < length; i++) {
     let tokenHourID = token.id
-    .toHexString()
-    .concat('-')
-    .concat(interval.toString())
-    let tokenHourData = TokenHourData.load(tokenHourID)
-    if (tokenHourData) {
-      store.remove('TokenHourData', tokenHourID)
-    }
-    if(interval.equals(token.lastHourArchived.plus(ROLL_DELETE_HOUR_LIMITER))){
+      .toHexString()
+      .concat('-')
+      .concat(array[i].toString())
+    // let tokenMinuteData = TokenMinuteData.load(tokenMinuteID)
+    // if (tokenMinuteData) {
+    store.remove('TokenHourData', tokenHourID)
+    // }
+    modArray.shift()
+    last = array[i]
+    if (BigInt.fromI32(i + 1).equals(ROLL_DELETE_HOUR_LIMITER)) {
+      // log.warning('INTERVAL REACH - {} - LIMITER - {}', [tokenMinuteID, i.toString()])
       break
     }
-    limiter = limiter.plus(BigInt.fromI32(1))
   }
-  
-  token.lastHourArchived = limiter
+  if (modArray) {
+    token.hourArray = modArray
+  } else {
+    token.hourArray = []
+  }
+  token.lastHourArchived = BigInt.fromI32(last)
   token.save()
 }

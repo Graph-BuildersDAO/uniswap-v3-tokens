@@ -19,8 +19,8 @@ export const STABLE_TOKEN_POOL = '0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8'
 export const ROLL_DELETE_HOUR = 768
 export const ROLL_DELETE_MINUTE = 1680
 
-export const ROLL_DELETE_HOUR_LIMITER = BigInt.fromI32(200)
-export const ROLL_DELETE_MINUTE_LIMITER = BigInt.fromI32(200)
+export const ROLL_DELETE_HOUR_LIMITER = BigInt.fromI32(500)
+export const ROLL_DELETE_MINUTE_LIMITER = BigInt.fromI32(1000)
 
 // token where amounts should contribute to tracked volume and liquidity
 // usually tokens that many tokens are paired with s
