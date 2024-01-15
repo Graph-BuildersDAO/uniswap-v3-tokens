@@ -3,7 +3,7 @@
 const util = require('util')
 const path = require('path');
 const exec = util.promisify(require('child_process').exec)
-import {networks} from "./networks";
+import {networks} from "./my-networks";
 import {prepare} from "./prepareNetwork";
 
 const executeCommand = async (command) => {
