@@ -15,6 +15,7 @@ export const factoryContract = FactoryContract.bind(FACTORY_ADDRESS)
 
 export const REFERENCE_TOKEN = '0x4200000000000000000000000000000000000006'
 export const STABLE_TOKEN_POOL = '0x2e9c575206288f2219409289035facac0b670c2f'
+export const MINIMUM_NATIVE_LOCKED_USD = BigDecimal.fromString('150000')
 
 export const ROLL_DELETE_HOUR = 768
 export const ROLL_DELETE_MINUTE = 1680

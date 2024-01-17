@@ -13,8 +13,9 @@ export const BI_18 = BigInt.fromI32(18)
 
 export const factoryContract = FactoryContract.bind(FACTORY_ADDRESS)
 
-export const REFERENCE_TOKEN = '0x66803fb87abd4aac3cbb3fad7c3aa01f6f3fb207'
-export const STABLE_TOKEN_POOL = '0xb90fe7da36ac89448e6dfd7f2bb1e90a66659977'
+export const REFERENCE_TOKEN = '0x471ece3750da237f93b8e339c536989b8978a438'
+export const STABLE_TOKEN_POOL = '0x079e7a44f42e9cd2442c3b9536244be634e8f888'
+export const MINIMUM_NATIVE_LOCKED_USD = BigDecimal.fromString('75000')
 
 export const ROLL_DELETE_HOUR = 768
 export const ROLL_DELETE_MINUTE = 1680

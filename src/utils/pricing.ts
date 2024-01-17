@@ -1,11 +1,9 @@
 /* eslint-disable prefer-const */
-import { ONE_BD, STABLE_TOKEN_POOL, REFERENCE_TOKEN, ZERO_BD, ZERO_BI } from './constants'
+import { ONE_BD, STABLE_TOKEN_POOL, REFERENCE_TOKEN, ZERO_BD, ZERO_BI, MINIMUM_NATIVE_LOCKED_USD } from './constants'
 import { Bundle, Pool, Token } from '../../generated/schema'
 import { Address, BigDecimal, BigInt } from '@graphprotocol/graph-ts'
 import { exponentToBigDecimal, safeDiv } from './index'
 import { STABLE_COINS, WHITELIST_TOKENS } from './constants'
-
-let MINIMUM_ETH_LOCKED = BigDecimal.fromString('60')
 
 let Q192 = BigInt.fromI32(2).pow(192 as u8)
 
@@ -23,12 +21,16 @@ export function sqrtPriceX96ToTokenPrices(sqrtPriceX96: BigInt, token0: Token, t
 
 export function getEthPriceInUSD(): BigDecimal {
   // fetch eth prices for each stablecoin
-  let usdcPool = Pool.load(Address.fromString(STABLE_TOKEN_POOL)) // dai is token0
-  if (usdcPool) {
-    return usdcPool.token0Price
-  } else {
-    return ZERO_BD
-  }
+ // fetch eth prices for each stablecoin
+ let usdcPool = Pool.load(Address.fromString(STABLE_TOKEN_POOL)) // dai is token0
+ if (usdcPool) {
+   if(usdcPool.token0 == Address.fromString(REFERENCE_TOKEN)) 
+     return usdcPool.token1Price
+   else 
+     return usdcPool.token0Price
+ } else {
+   return ZERO_BD
+ }
 }
 
 /**
@@ -45,7 +47,7 @@ export function findEthPerToken(token: Token): BigDecimal {
   let largestLiquidityETH = ZERO_BD
   let priceSoFar = ZERO_BD
   let bundle = Bundle.load('1')!
-
+  let minimumLockedThreshold = safeDiv(MINIMUM_NATIVE_LOCKED_USD,bundle.ethPriceUSD);
   // hardcoded fix for incorrect rates
   // if whitelist includes token - get the safe price
   if (STABLE_COINS.includes(token.id.toHexString())) {
@@ -62,7 +64,7 @@ export function findEthPerToken(token: Token): BigDecimal {
             if (token1) {
               // get the derived ETH in pool
               let ethLocked = pool.totalValueLockedToken1.times(token1.derivedETH)
-              if (ethLocked.gt(largestLiquidityETH) && ethLocked.gt(MINIMUM_ETH_LOCKED)) {
+              if (ethLocked.gt(largestLiquidityETH) && ethLocked.gt(minimumLockedThreshold)) {
                 largestLiquidityETH = ethLocked
                 // token1 per our token * Eth per token1
                 priceSoFar = pool.token1Price.times(token1.derivedETH as BigDecimal)
@@ -74,7 +76,7 @@ export function findEthPerToken(token: Token): BigDecimal {
             if (token0) {
               // get the derived ETH in pool
               let ethLocked = pool.totalValueLockedToken0.times(token0.derivedETH)
-              if (ethLocked.gt(largestLiquidityETH) && ethLocked.gt(MINIMUM_ETH_LOCKED)) {
+              if (ethLocked.gt(largestLiquidityETH) && ethLocked.gt(minimumLockedThreshold)) {
                 largestLiquidityETH = ethLocked
                 // token0 per our token * ETH per token0
                 priceSoFar = pool.token0Price.times(token0.derivedETH as BigDecimal)

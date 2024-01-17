@@ -13,8 +13,10 @@ export const BI_18 = BigInt.fromI32(18)
 
 export const factoryContract = FactoryContract.bind(FACTORY_ADDRESS)
 
-export const REFERENCE_TOKEN = '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619'
-export const STABLE_TOKEN_POOL = '0x0e44ceb592acfc5d3f09d996302eb4c499ff8c10'
+
+export const REFERENCE_TOKEN = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
+export const STABLE_TOKEN_POOL = '0xA374094527e1673A86dE625aa59517c5dE346d32'
+export const MINIMUM_NATIVE_LOCKED_USD = BigDecimal.fromString('150000')
 
 export const ROLL_DELETE_HOUR = 768
 export const ROLL_DELETE_MINUTE = 1680
@@ -22,14 +24,16 @@ export const ROLL_DELETE_MINUTE = 1680
 export const ROLL_DELETE_HOUR_LIMITER = BigInt.fromI32(500)
 export const ROLL_DELETE_MINUTE_LIMITER = BigInt.fromI32(1000)
 
+
 // token where amounts should contribute to tracked volume and liquidity
 // usually tokens that many tokens are paired with s
 export const WHITELIST_TOKENS: string[] = [
-  REFERENCE_TOKEN, // WETH
-  '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270', // WMATIC
+  REFERENCE_TOKEN, // WMATIC
+   '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619', //WETH
   '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', // USDC
   '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063' // DAI
 ]
+
 
 export const STABLE_COINS: string[] = ['0x2791bca1f2de4661ed88a30c99a7a9449aa84174']
 
