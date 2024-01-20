@@ -79,7 +79,7 @@ const checkStudioAccessToken = () => {
     console.log(`\n Copying constants & templates for ${network} \n`)
     await prepare(network)
     console.log(`\n Generating manifest for ${network} \n`)
-    await executeCommand(`yarn manifest:${network}`)
+    await executeCommand(`cross-env mustache config/${network}/config.json subgraph.template.yaml > subgraph.yaml`)
     await codegen()
   }
 
