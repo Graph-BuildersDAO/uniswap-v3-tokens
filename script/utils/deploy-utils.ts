@@ -50,7 +50,6 @@ const checkHostedServiceAccessToken = () => {
     throw new Error(
       `
       Missing access token in SUBGRAPH_DEPLOY_KEY env.
-      You can get a token from https://thegraph.com/hosted-service/dashboard?account=unlock-protocol
       `
     )
   }
@@ -131,6 +130,7 @@ export const deploy = async (network, studioName, graphLabel) => {
 
   const hostedEndpoint = networks[network].hostedEndpoint;
   const studioEndpoint = networks[network].studioEndpoint;
+  const lastV = networks[network].lastV;
 
   if(studioName && graphLabel){
     return deployStudio(graphLabel, studioName)
@@ -141,7 +141,12 @@ export const deploy = async (network, studioName, graphLabel) => {
   }
 
   if(studioEndpoint){
-    return deployStudio('v0.0.1', studioEndpoint)
+    if(lastV !== ""){
+      return deployStudio(lastV, studioEndpoint)
+    }else {
+      return deployStudio('v0.0.1', studioEndpoint)
+    }
+      
   }
 
   if(hostedEndpoint){

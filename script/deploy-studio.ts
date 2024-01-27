@@ -16,7 +16,7 @@ async function  main() {
   // build and deploy each network
   for (const network of studioChoices) {
     await build(network)
-    await deployOnlyStudio(network, "v0.0.1")
+    await deployOnlyStudio(network, networks[network].lastV)
   }
 
   console.log('Subgraph studio deployments done.')
