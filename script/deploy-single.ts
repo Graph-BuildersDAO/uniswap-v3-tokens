@@ -13,7 +13,7 @@ async function main() {
     process.exit(-1)
   }
   await build(network)
-  await deploy(network, networks[network].studioEndpoint, "v0.0.1")
+  await deploy(network, networks[network].studioEndpoint, "v1.0.1")
 }
 
 main()

@@ -18,7 +18,7 @@ export function handlePoolCreated(event: PoolCreated): void {
   //   return
 
   // // temp fix
-  // if (event.params.pool == Address.fromHexString('0x8fe8d9bb8eeba3ed688069c3d6b556c9ca258248')) {
+  // if (event.params.pool != Address.fromHexString('0xbfe6843B931C9c1b7B705195B7Af57B228fa8561')) {
   //   return
   // }
 
@@ -141,9 +141,10 @@ export function handlePoolCreated(event: PoolCreated): void {
   pool.collectedFeesUSD = ZERO_BD
 
   pool.save()
-  // create the tracked contract based on the template
-  PoolTemplate.create(event.params.pool)
   token0.save()
   token1.save()
   factory.save()
+  // create the tracked contract based on the template
+  PoolTemplate.create(event.params.pool)
+
 }
