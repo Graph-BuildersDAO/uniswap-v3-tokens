@@ -24,17 +24,17 @@ export const networks : NetworkConfigs=  {
     "avax": {
         studioEndpoint: "univ3-tokens-avax",
         hostedEndpoint: "univ3-tokens-avax",
-        lastV:"v1.0.2"
+        lastV:"v1.0.3"
     },
     "base": {
         studioEndpoint: "univ3-tokens-base",
         hostedEndpoint: "univ3-tokens-base",
-        lastV:"v1.0.1"
+        lastV:"v1.0.2"
     },
     "celo": {
         studioEndpoint: "univ3-tokens-celo",
         hostedEndpoint: "univ3-tokens-celo",
-        lastV:"v1.0.2"
+        lastV:"v1.0.3"
     },
     "polygon": {
         studioEndpoint: "univ3-tokens-polygon",
@@ -49,7 +49,7 @@ export const networks : NetworkConfigs=  {
     "bsc": {
         studioEndpoint: "univ3-tokens-bsc",
         hostedEndpoint: "univ3-tokens-bsc",
-        lastV:"v1.0.1"
+        lastV:"v1.0.2"
     },
 } 
     

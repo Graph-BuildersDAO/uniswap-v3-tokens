@@ -5,6 +5,7 @@ src/types/
 .DS_STORE
 yarn-error.log
 subgraph.yaml
+subgraph.template.yaml
 .vscode
 package-lock.json
 yarn.lock
