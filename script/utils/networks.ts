@@ -39,7 +39,7 @@ export const networks : NetworkConfigs=  {
     "polygon": {
         studioEndpoint: "univ3-tokens-polygon",
         hostedEndpoint: "univ3-tokens-polygon",
-        lastV:"v1.0.3"
+        lastV:"v1.0.4"
     },
     "optimism": {
         studioEndpoint: "univ3-tokens-optimism",
