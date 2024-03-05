@@ -37,7 +37,6 @@ export function updateTokenDayData(token: Token, event: ethereum.Event): TokenDa
     tokenDayData.open = tokenPrice
     tokenDayData.high = tokenPrice
     tokenDayData.low = tokenPrice
-    tokenDayData.close = tokenPrice
   }
 
   if (tokenPrice.gt(tokenDayData.high)) {
@@ -104,14 +103,14 @@ export function updateTokenHourData(token: Token, event: ethereum.Event): TokenH
 
   if (token.lastHourArchived.equals(ZERO_BI) && token.lastHourRecorded.equals(ZERO_BI)) {
     token.lastHourRecorded = BigInt.fromI32(hourIndex)
-    token.lastHourArchived = BigInt.fromI32(hourIndex-1)
+    token.lastHourArchived = BigInt.fromI32(hourIndex - 1)
   }
 
   if (isNew) {
     let lastHourArchived = token.lastHourArchived.toI32()
     let stop = hourIndex - ROLL_DELETE_HOUR
     if (stop > lastHourArchived) {
-      archiveHourData(token,stop) //cur
+      archiveHourData(token, stop) //cur
     }
     token.lastHourRecorded = BigInt.fromI32(hourIndex)
     token.save()
@@ -167,11 +166,11 @@ export function updateTokenMinuteData(token: Token, event: ethereum.Event): Toke
 
   if (token.lastMinuteArchived.equals(ZERO_BI) && token.lastMinuteRecorded.equals(ZERO_BI)) {
     token.lastMinuteRecorded = BigInt.fromI32(minuteIndex)
-    token.lastMinuteArchived = BigInt.fromI32(minuteIndex-1)
+    token.lastMinuteArchived = BigInt.fromI32(minuteIndex - 1)
   }
   if (isNew) {
     let lastMinuteArchived = token.lastMinuteArchived.toI32()
-    let stop = minuteIndex - ROLL_DELETE_MINUTE 
+    let stop = minuteIndex - ROLL_DELETE_MINUTE
     if (stop > lastMinuteArchived) {
       archiveMinuteData(token, stop)
     }
@@ -194,7 +193,7 @@ function archiveMinuteData(token: Token, end: i32): void {
   let modArray = token.minuteArray
   let last = token.lastMinuteArchived.toI32()
   for (let i = 0; i < length; i++) {
-    if(array[i] > end){
+    if (array[i] > end) {
       break
     }
     let tokenMinuteID = token.id
@@ -223,12 +222,12 @@ function archiveMinuteData(token: Token, end: i32): void {
 
 function archiveHourData(token: Token, end: i32): void {
   let length = token.hourArray.length
-  
+
   let array = token.hourArray
   let modArray = token.hourArray
   let last = token.lastHourArchived.toI32()
   for (let i = 0; i < length; i++) {
-    if(array[i] > end){
+    if (array[i] > end) {
       break
     }
     let tokenHourID = token.id

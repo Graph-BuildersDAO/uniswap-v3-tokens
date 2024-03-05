@@ -16,7 +16,7 @@ export const factoryContract = FactoryContract.bind(FACTORY_ADDRESS)
 export const REFERENCE_TOKEN = '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c' // WBNB
 export const STABLE_TOKEN_POOL = '0x6fe9e9de56356f7edbfcbb29fab7cd69471a4869' // WBNB/USDT 0.05%
 
-export const MINIMUM_NATIVE_LOCKED_USD = BigDecimal.fromString('150000')
+export const MINIMUM_NATIVE_LOCKED_USD = BigDecimal.fromString('100000')
 
 export const ROLL_DELETE_HOUR = 768
 export const ROLL_DELETE_MINUTE = 1680
@@ -33,7 +33,11 @@ export const WHITELIST_TOKENS: string[] = [
   '0x55d398326f99059ff775485246999027b3197955' // USDT
 ]
 
-export const STABLE_COINS: string[] = ['0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d','0x55d398326f99059ff775485246999027b3197955','0xe9e7cea3dedca5984780bafc599bd69add087d56']
+export const STABLE_COINS: string[] = [
+  '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
+  '0x55d398326f99059ff775485246999027b3197955',
+  '0xe9e7cea3dedca5984780bafc599bd69add087d56'
+]
 
 // Initialize a Token Definition with the attributes
 export class StaticTokenDefinition {
