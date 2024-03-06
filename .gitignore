@@ -11,3 +11,4 @@ package-lock.json
 yarn.lock
 /src/utils/constants.ts
 /script/utils/my-networks.ts
+.env

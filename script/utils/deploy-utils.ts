@@ -5,6 +5,8 @@ const path = require('path');
 const exec = util.promisify(require('child_process').exec)
 import {networks} from "./networks";
 import {prepare} from "./prepareNetwork";
+import * as dotenv from "dotenv";
+dotenv.config();
 
 const executeCommand = async (command) => {
   try {
