@@ -14,7 +14,7 @@ export const BI_18 = BigInt.fromI32(18)
 export const factoryContract = FactoryContract.bind(FACTORY_ADDRESS)
 
 export const REFERENCE_TOKEN = '0x4200000000000000000000000000000000000006'
-export const STABLE_TOKEN_POOL = '0x2e9c575206288f2219409289035facac0b670c2f'
+export const STABLE_TOKEN_POOL = '0x85149247691df622eaf1a8bd0cafd40bc45154a9' // WETH/USDC 0.05%
 export const MINIMUM_NATIVE_LOCKED_USD = BigDecimal.fromString('150000')
 
 export const ROLL_DELETE_HOUR = 768
@@ -27,10 +27,17 @@ export const ROLL_DELETE_MINUTE_LIMITER = BigInt.fromI32(1000)
 // usually tokens that many tokens are paired with s
 export const WHITELIST_TOKENS: string[] = [
   REFERENCE_TOKEN, // WETH
-  '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1' // DAI
+  '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1', // DAI
+  '0x7f5c764cbc14f9669b88837ca1490cca17c31607', // USDC Bridged
+  '0x0b2c639c533813f4aa9d7837caf62653d097ff85', // USDC Native
+  '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58' // USDT
 ]
 
-export const STABLE_COINS: string[] = []
+export const STABLE_COINS: string[] = [
+  '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',
+  '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85',
+  '0x7F5c764cBc14f9669B88837ca1490cCa17c31607'
+]
 
 export class StaticTokenDefinition {
   address: Address
