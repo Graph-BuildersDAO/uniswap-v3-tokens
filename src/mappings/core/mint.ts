@@ -2,7 +2,7 @@ import { Token } from '../../../generated/schema'
 import { BigDecimal, BigInt } from '@graphprotocol/graph-ts'
 import { Mint as MintEvent } from '../../../generated/templates/Pool/Pool'
 import { convertTokenToDecimal } from '../../utils'
-import { ONE_BI } from '../../utils/constants'
+import { MATURE_MARKET, ONE_BI, TVL_MULTIPLIER_THRESHOLD, WHITELIST_TOKENS } from '../../utils/constants'
 import { updateTokenDayData, updateTokenHourData, updateTokenMinuteData } from '../../utils/intervalUpdates'
 import { getBundle, getFactory, getPool } from '../../utils/entityGetters'
 
@@ -58,9 +58,32 @@ export function handleMint(event: MintEvent): void {
 
       pool.totalValueLockedToken0 = pool.totalValueLockedToken0.plus(amount0)
       pool.totalValueLockedToken1 = pool.totalValueLockedToken1.plus(amount1)
-      pool.totalValueLockedETH = pool.totalValueLockedToken0
+      if (pool.totalValueLockedUSD.lt(BigDecimal.fromString(MATURE_MARKET))) {
+        if (WHITELIST_TOKENS.includes(pool.token0.toHexString())) {
+          let tvlNative0 = pool.totalValueLockedToken0.times(token0.derivedETH)
+          let tvlNative1 = pool.totalValueLockedToken1.times(token1.derivedETH)
+
+          if (tvlNative0.plus(tvlNative1).gt(tvlNative0.times(BigDecimal.fromString(TVL_MULTIPLIER_THRESHOLD)))) {
+            pool.totalValueLockedETH = pool.totalValueLockedToken0
+              .times(token0.derivedETH)
+              .times(BigDecimal.fromString(TVL_MULTIPLIER_THRESHOLD))
+          }
+        }
+        if (WHITELIST_TOKENS.includes(pool.token1.toHexString())) {
+          let tvlNative1 = pool.totalValueLockedToken1.times(token1.derivedETH)
+          let tvlNative0 = pool.totalValueLockedToken0.times(token0.derivedETH)
+
+          if (tvlNative1.plus(tvlNative0).gt(tvlNative1.times(BigDecimal.fromString(TVL_MULTIPLIER_THRESHOLD)))) {
+            pool.totalValueLockedETH = pool.totalValueLockedToken1
+              .times(token1.derivedETH)
+              .times(BigDecimal.fromString(TVL_MULTIPLIER_THRESHOLD))
+          }
+        }
+      } else {
+        pool.totalValueLockedETH = pool.totalValueLockedToken0
         .times(token0.derivedETH)
         .plus(pool.totalValueLockedToken1.times(token1.derivedETH))
+      }
       pool.totalValueLockedUSD = pool.totalValueLockedETH.times(bundle.ethPriceUSD)
 
       factory.totalValueLockedETH = factory.totalValueLockedETH.plus(pool.totalValueLockedETH)

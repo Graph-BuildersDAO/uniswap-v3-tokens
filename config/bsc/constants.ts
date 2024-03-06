@@ -16,7 +16,8 @@ export const factoryContract = FactoryContract.bind(FACTORY_ADDRESS)
 export const REFERENCE_TOKEN = '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c' // WBNB
 export const STABLE_TOKEN_POOL = '0x6fe9e9de56356f7edbfcbb29fab7cd69471a4869' // WBNB/USDT 0.05%
 
-export const MINIMUM_NATIVE_LOCKED_USD = BigDecimal.fromString('100000')
+export const TVL_MULTIPLIER_THRESHOLD = "2"
+export const MATURE_MARKET = "1000000"
 
 export const ROLL_DELETE_HOUR = 768
 export const ROLL_DELETE_MINUTE = 1680

@@ -2,9 +2,9 @@
 import { ERC20 } from '../../../generated/templates/Pool/ERC20'
 import { Collect as CollectEvent } from '../../../generated/templates/Pool/Pool'
 import { convertTokenToDecimal } from '../../utils'
-import { ONE_BI, ZERO_BD } from '../../utils/constants'
+import { MATURE_MARKET, ONE_BI, TVL_MULTIPLIER_THRESHOLD, WHITELIST_TOKENS, ZERO_BD } from '../../utils/constants'
 import { getBundle, getFactory, getPool, getToken } from '../../utils/entityGetters'
-import { Address } from '@graphprotocol/graph-ts'
+import { Address, BigDecimal } from '@graphprotocol/graph-ts'
 
 // @TODO Prior NonfungiblePositionManager Collect code, to be updated to Pool collect code
 export function handleCollect(event: CollectEvent): void {
@@ -49,9 +49,32 @@ export function handleCollect(event: CollectEvent): void {
     }
     pool.totalValueLockedToken0 = tvlToken0Actual
     pool.totalValueLockedToken1 = tvlToken1Actual
-    pool.totalValueLockedETH = pool.totalValueLockedToken0
+    if (pool.totalValueLockedUSD.lt(BigDecimal.fromString(MATURE_MARKET))) {
+      if (WHITELIST_TOKENS.includes(pool.token0.toHexString())) {
+        let tvlNative0 = pool.totalValueLockedToken0.times(token0.derivedETH)
+        let tvlNative1 = pool.totalValueLockedToken1.times(token1.derivedETH)
+
+        if (tvlNative0.plus(tvlNative1).gt(tvlNative0.times(BigDecimal.fromString(TVL_MULTIPLIER_THRESHOLD)))) {
+          pool.totalValueLockedETH = pool.totalValueLockedToken0
+            .times(token0.derivedETH)
+            .times(BigDecimal.fromString(TVL_MULTIPLIER_THRESHOLD))
+        }
+      }
+      if (WHITELIST_TOKENS.includes(pool.token1.toHexString())) {
+        let tvlNative1 = pool.totalValueLockedToken1.times(token1.derivedETH)
+        let tvlNative0 = pool.totalValueLockedToken0.times(token0.derivedETH)
+
+        if (tvlNative1.plus(tvlNative0).gt(tvlNative1.times(BigDecimal.fromString(TVL_MULTIPLIER_THRESHOLD)))) {
+          pool.totalValueLockedETH = pool.totalValueLockedToken1
+            .times(token1.derivedETH)
+            .times(BigDecimal.fromString(TVL_MULTIPLIER_THRESHOLD))
+        }
+      }
+    } else {
+      pool.totalValueLockedETH = pool.totalValueLockedToken0
       .times(token0.derivedETH)
       .plus(pool.totalValueLockedToken1.times(token1.derivedETH))
+    }
     pool.totalValueLockedUSD = pool.totalValueLockedETH.times(bundle.ethPriceUSD)
     // KENT TODO: MOVE LOWER - AFTER CHECKING IF POOL APPROVED
     factory.totalValueLockedETH = factory.totalValueLockedETH.plus(pool.totalValueLockedETH)

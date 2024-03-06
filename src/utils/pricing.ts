@@ -1,5 +1,5 @@
 /* eslint-disable prefer-const */
-import { ONE_BD, STABLE_TOKEN_POOL, REFERENCE_TOKEN, ZERO_BD, ZERO_BI, MINIMUM_NATIVE_LOCKED_USD } from './constants'
+import { ONE_BD, STABLE_TOKEN_POOL, REFERENCE_TOKEN, ZERO_BD, ZERO_BI } from './constants'
 import { Bundle, Pool, Token } from '../../generated/schema'
 import { Address, BigDecimal, BigInt } from '@graphprotocol/graph-ts'
 import { exponentToBigDecimal, safeDiv } from './index'
@@ -44,10 +44,8 @@ export function findEthPerToken(token: Token): BigDecimal {
   let whiteList = token.whitelistPools
   // for now just take USD from pool with greatest TVL
   // need to update this to actually detect best rate based on liquidity distribution
-  let largestLiquidityETH = ZERO_BD
   let priceSoFar = ZERO_BD
   let bundle = Bundle.load('1')!
-  let minimumLockedThreshold = safeDiv(MINIMUM_NATIVE_LOCKED_USD,bundle.ethPriceUSD);
   // hardcoded fix for incorrect rates
   // if whitelist includes token - get the safe price
   if (STABLE_COINS.includes(token.id.toHexString())) {
@@ -62,25 +60,15 @@ export function findEthPerToken(token: Token): BigDecimal {
             // whitelist token is token1
             let token1 = Token.load(pool.token1)
             if (token1) {
-              // get the derived ETH in pool
-              let ethLocked = pool.totalValueLockedToken1.times(token1.derivedETH)
-              if (ethLocked.gt(largestLiquidityETH) && ethLocked.gt(minimumLockedThreshold)) {
-                largestLiquidityETH = ethLocked
                 // token1 per our token * Eth per token1
                 priceSoFar = pool.token1Price.times(token1.derivedETH as BigDecimal)
-              }
             }
           }
           if (pool.token1 == token.id) {
             let token0 = Token.load(pool.token0)
             if (token0) {
-              // get the derived ETH in pool
-              let ethLocked = pool.totalValueLockedToken0.times(token0.derivedETH)
-              if (ethLocked.gt(largestLiquidityETH) && ethLocked.gt(minimumLockedThreshold)) {
-                largestLiquidityETH = ethLocked
                 // token0 per our token * ETH per token0
                 priceSoFar = pool.token0Price.times(token0.derivedETH as BigDecimal)
-              }
             }
           }
         }

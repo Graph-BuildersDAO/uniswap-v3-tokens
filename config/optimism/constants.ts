@@ -15,7 +15,8 @@ export const factoryContract = FactoryContract.bind(FACTORY_ADDRESS)
 
 export const REFERENCE_TOKEN = '0x4200000000000000000000000000000000000006'
 export const STABLE_TOKEN_POOL = '0x85149247691df622eaf1a8bd0cafd40bc45154a9' // WETH/USDC 0.05%
-export const MINIMUM_NATIVE_LOCKED_USD = BigDecimal.fromString('150000')
+export const TVL_MULTIPLIER_THRESHOLD = "2"
+export const MATURE_MARKET = "1000000"
 
 export const ROLL_DELETE_HOUR = 768
 export const ROLL_DELETE_MINUTE = 1680

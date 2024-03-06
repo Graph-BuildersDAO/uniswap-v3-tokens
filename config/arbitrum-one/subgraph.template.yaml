@@ -6,10 +6,6 @@ schema:
 features:
   - nonFatalErrors
   - fullTextSearch
-  - grafting
-graft:
-  base: QmNW5nXb42cjmxXSL31oimfNT8VfDHgiBFtEfdoBb9irzv
-  block: 62291000 
 dataSources:
   - kind: ethereum/contract
     name: Factory
