@@ -3,7 +3,7 @@ import { Pool as PoolABI } from '../../../generated/Factory/Pool'
 import { Address, BigDecimal, BigInt } from '@graphprotocol/graph-ts'
 import { Swap as SwapEvent } from '../../../generated/templates/Pool/Pool'
 import { convertTokenToDecimal, safeDiv } from '../../utils'
-import { FACTORY_ADDRESS, ONE_BI, ZERO_BD } from '../../utils/constants'
+import { FACTORY_ADDRESS, MATURE_MARKET, ONE_BI, TVL_MULTIPLIER_THRESHOLD, WHITELIST_TOKENS, ZERO_BD } from '../../utils/constants'
 import { findEthPerToken, getEthPriceInUSD, getTrackedAmountUSD, sqrtPriceX96ToTokenPrices } from '../../utils/pricing'
 import { updateTokenDayData, updateTokenHourData, updateTokenMinuteData } from '../../utils/intervalUpdates'
 
@@ -111,9 +111,33 @@ export function handleSwap(event: SwapEvent): void {
        * Things afffected by new USD rates
        */
       if(pool.balanceOfBlock < event.block.number){
-        pool.totalValueLockedETH = pool.totalValueLockedToken0
+        if (pool.totalValueLockedUSD.lt(BigDecimal.fromString(MATURE_MARKET))) {
+          if (WHITELIST_TOKENS.includes(pool.token0.toHexString())) {
+            let tvlNative0 = pool.totalValueLockedToken0.times(token0.derivedETH)
+            let tvlNative1 = pool.totalValueLockedToken1.times(token1.derivedETH)
+  
+            if (tvlNative0.plus(tvlNative1).gt(tvlNative0.times(BigDecimal.fromString(TVL_MULTIPLIER_THRESHOLD)))) {
+              pool.totalValueLockedETH = pool.totalValueLockedToken0
+                .times(token0.derivedETH)
+                .times(BigDecimal.fromString(TVL_MULTIPLIER_THRESHOLD))
+            }
+          }
+          if (WHITELIST_TOKENS.includes(pool.token1.toHexString())) {
+            let tvlNative1 = pool.totalValueLockedToken1.times(token1.derivedETH)
+            let tvlNative0 = pool.totalValueLockedToken0.times(token0.derivedETH)
+  
+            if (tvlNative1.plus(tvlNative0).gt(tvlNative1.times(BigDecimal.fromString(TVL_MULTIPLIER_THRESHOLD)))) {
+              pool.totalValueLockedETH = pool.totalValueLockedToken1
+                .times(token1.derivedETH)
+                .times(BigDecimal.fromString(TVL_MULTIPLIER_THRESHOLD))
+            }
+          }
+        } else {
+          pool.totalValueLockedETH = pool.totalValueLockedToken0
           .times(token0.derivedETH)
           .plus(pool.totalValueLockedToken1.times(token1.derivedETH))
+        }
+        
         pool.totalValueLockedUSD = pool.totalValueLockedETH.times(bundle.ethPriceUSD)
 
         // KENT TODO: MOVE LOWER - AFTER CHECKING IF POOL APPROVED
